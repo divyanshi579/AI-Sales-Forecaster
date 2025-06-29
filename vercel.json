@@ -1,14 +1,18 @@
 {
-  "builds": [{
-    "src": "app.py",
-    "use": "@vercel/python",
-    "config": {
-      "runtime": "python3.9",
-      "installCommand": "pip install fbprophet-0.7.1-cp39-cp39-manylinux2010_x86_64.whl && pip install -r requirements.txt"
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.9",
+        "installCommand": "pip install https://files.pythonhosted.org/packages/2f/48/.../fbprophet-0.7.1-cp39-cp39-manylinux2010_x86_64.whl && pip install -r requirements.txt"
+      }
     }
-  }],
-  "routes": [{
-    "src": "/(.*)",
-    "dest": "app.py"
-  }]
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ]
 }
