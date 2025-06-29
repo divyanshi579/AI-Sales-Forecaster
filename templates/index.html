@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retail Demand Forecaster</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1><i class="fas fa-chart-line"></i> Retail Demand Forecaster</h1>
+      <p>AI-powered sales predictions with anomaly detection</p>
+    </header>
+
+    <!-- Control Card -->
+    <div class="card">
+      <h2 class="card-title"><i class="fas fa-sliders-h"></i> Forecast Controls</h2>
+      <form id="forecast-form">
+        <div class="form-group">
+          <label for="days">Forecast Period (Days) (Only upto 90 Days)</label>
+          <input type="number" id="days" min="1" max="90" value="30">
+        </div>
+        <button type="submit" class="btn btn-block">
+          <i class="fas fa-calculator"></i> Generate Forecast
+        </button>
+      </form>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card">
+      <h2 class="card-title"><i class="fas fa-chart-bar"></i> Sales Forecast</h2>
+      <div id="chart" class="chart-container"></div>
+    </div>
+
+    <!-- Anomalies Card -->
+    <div class="card">
+      <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> Detected Anomalies</h2>
+      <div id="anomalies-alert" class="alert alert-danger" style="display: none;">
+        <i class="fas fa-info-circle"></i> <span id="anomalies-count">0</span> anomalies detected in historical data
+      </div>
+      <div class="table-responsive">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Actual Sales</th>
+              <th>Expected</th>
+              <th>Deviation</th>
+            </tr>
+          </thead>
+          <tbody id="anomalies-table">
+            <!-- JS will populate this -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    document.getElementById('forecast-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const days = document.getElementById('days').value;
+      
+      // Show loading state
+      const btn = e.target.querySelector('button');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/forecast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `days=${days}`
+        });
+        
+        const data = await response.json();
+        
+        // Render chart
+        renderChart(data);
+        
+        // Simulate anomaly detection (replace with real data)
+        simulateAnomalies();
+        
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        btn.innerHTML = '<i class="fas fa-calculator"></i> Generate Forecast';
+        btn.disabled = false;
+      }
+    };
+
+    function renderChart(data) {
+      const layout = {
+        title: `${data.length}-Day Demand Forecast`,
+        xaxis: { title: 'Date' },
+        yaxis: { title: 'Sales Units' },
+        hovermode: 'closest',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        font: { family: 'Inter, sans-serif' },
+        margin: { t: 40, r: 30, b: 40, l: 50 }
+      };
+      
+      Plotly.newPlot('chart', [{
+        x: data.map(d => d.ds),
+        y: data.map(d => d.yhat),
+        name: 'Forecast',
+        mode: 'lines',
+        line: { color: '#4361ee', width: 3 }
+      }, {
+        x: data.map(d => d.ds),
+        y: data.map(d => d.yhat_upper),
+        fill: 'tonexty',
+        mode: 'none',
+        name: 'Upper Bound',
+        fillcolor: 'rgba(67, 97, 238, 0.1)'
+      }, {
+        x: data.map(d => d.ds),
+        y: data.map(d => d.yhat_lower),
+        fill: 'tonexty',
+        mode: 'none',
+        name: 'Lower Bound',
+        fillcolor: 'rgba(67, 97, 238, 0.1)'
+      }], layout);
+    }
+
+    function simulateAnomalies() {
+      // Replace with real anomaly data from your backend
+      const mockAnomalies = [
+        { date: '2023-05-15', actual: 2450, expected: 1800, deviation: '+36%' },
+        { date: '2023-06-22', actual: 850, expected: 1200, deviation: '-29%' }
+      ];
+      
+      const table = document.getElementById('anomalies-table');
+      table.innerHTML = '';
+      
+      mockAnomalies.forEach(anom => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${anom.date}</td>
+          <td>${anom.actual.toLocaleString()}</td>
+          <td>${anom.expected.toLocaleString()}</td>
+          <td class="${anom.deviation.includes('+') ? 'text-success' : 'text-danger'}">
+            ${anom.deviation}
+          </td>
+        `;
+        table.appendChild(row);
+      });
+      
+      // Update alert
+      const alert = document.getElementById('anomalies-alert');
+      const count = document.getElementById('anomalies-count');
+      count.textContent = mockAnomalies.length;
+      alert.style.display = mockAnomalies.length > 0 ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
