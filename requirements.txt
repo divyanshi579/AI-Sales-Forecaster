@@ -1,8 +1,4 @@
-setuptools==68.2.2  # Explicit version
-pystan==2.19.1.1
-prophet==1.1.5
 flask==2.3.2
 pandas==1.5.3
 plotly==5.15.0
-numpy==1.23.5
-gunicorn==20.1.0
+fbprophet==0.7.1  # More compatible
