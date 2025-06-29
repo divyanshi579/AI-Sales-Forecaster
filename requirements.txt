@@ -1,4 +1,16 @@
+# Core
 flask==2.3.2
+gunicorn==20.1.0
+
+# Data
 pandas==1.5.3
+numpy==1.23.5
+
+# Visualization
 plotly==5.15.0
-fbprophet==0.7.1  # More compatible
+
+# Prophet dependencies
+convertdate==2.4.0
+holidays==0.25
+lunarcalendar==0.0.9
+tqdm==4.65.0
