@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
-# Install Prophet with pre-built wheels
-pip install --no-use-pep517 prophet==1.1.5
+# First install setuptools
+pip install --upgrade pip setuptools wheel
+
+# Then install Prophet with modified approach
+pip install pystan==2.19.1.1 --no-binary :all:
+pip install prophet==1.1.5 --no-binary :all:
 pip install -r requirements.txt
